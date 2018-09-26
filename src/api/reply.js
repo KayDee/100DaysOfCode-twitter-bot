@@ -1,21 +1,19 @@
-'use strict'
-
-const config = require('../config')
 const uniqueRandom = require('unique-random-array')
-const twit = require('twit')
 
+const bot = require('../twitBot')
 const isReply = require('../helpers/isReply')
-
-const bot = new twit(config.twitterKeys)
+const randomEmoji = require('../helpers/randomEmoji')
 
 // function: tweets back to user who followed
 function tweetNow(text) {
-  let tweet = { status: text }
+  const tweet = { status: text }
 
-  bot.post('statuses/update', tweet, (err, data, response) => {
+  bot.post('statuses/update', tweet, err => {
     if (err) {
+      // eslint-disable-next-line no-console
       console.log('ERROR: Cannot Reply. Not a first time follower')
     }
+    // eslint-disable-next-line no-console
     console.log('SUCCESS: Replied to Follower')
   })
 }
@@ -24,23 +22,22 @@ function tweetNow(text) {
 const reply = event => {
   if (isReply(event)) return
   // get user's twitter handler/screen name
-  let screenName = event.source.screen_name
+  const screenName = event.source.screen_name
 
   const randomReply = uniqueRandom([
     `Hi @${screenName} thanks for the follow! What are you working on today?`,
     `@${screenName} thanks for following! What are you working on today?`,
     `Hey @${screenName} thanks for the follow! What are you working on today?`,
-    `Thanks for following @${screenName}! What are you working on today?`,
-    `Thanks for following @${screenName}! What you up to today?`,
-    `Hey @${
-      screenName
-    }, working on anything code related today? Thanks for following`,
+    `Thanks for following, @${screenName}! What are you working on today?`,
+    `Thanks for following, @${screenName}! What you up to today?`,
+    `Thanks for the follow, @${screenName}! Hope you're coding something awesome. Don't forget to share with us too.`,
+    `Hey @${screenName}, working on anything code related today? Thanks for following`,
     `Awesome @${screenName}, thanks for following!`,
     `Thanks for the follow @${screenName}!`,
     `Thanks for the following @${screenName}! How are you today?`
   ])
 
-  let response = randomReply()
+  const response = `${randomReply()} ${randomEmoji()}`
   tweetNow(response)
 }
 
